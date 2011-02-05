@@ -39,7 +39,8 @@
 ||epgName||Краткое описание выбранной передачи||Label()||
 ||epgDiscription||Подробное описание выбранной передачи||Label()||
 ||epgTime||Время начала и окончания выбранной передачи в формате HH:MM - HH:MM||Label()||
-||sepgName||Для single режима. Краткое + \n + подробное описание||Label()||
+||sepgName||Для single режима. Краткое описание||Label()||
+||sepgDiscription||Для single режима. подробное онисание ||Label()||
 ||sepgTime||Время начала и окончания выбранной передачи в формате HH:MM ||Label()|| 
 
 Add your content here.  Format your content with:
