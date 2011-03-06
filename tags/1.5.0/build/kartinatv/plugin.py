@@ -1179,9 +1179,9 @@ class KartinaChannelSelection(Screen):
 	def pinEntered(self, service, result):
 		if result:
 			parentalControl.unProtectService(service)
-			self.close()
+			self.exit()
 		else:
-			self.session.openWithCallback(self.close, MessageBox, _("The pin code you entered is wrong."), MessageBox.TYPE_ERROR)
+			self.session.openWithCallback(self.exit, MessageBox, _("The pin code you entered is wrong."), MessageBox.TYPE_ERROR)
 	
 	def showEpgList(self):
 		if self.editMode: return
