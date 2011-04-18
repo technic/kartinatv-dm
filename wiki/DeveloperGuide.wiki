@@ -37,7 +37,7 @@ bitabke это инструмент для автоматизации сборк
 Теперь я расскажу как написать свой рецепт. Для этого я посмотрел на пример использующийся в enigma2. В оригинале enigma2-plugins.bb собирает все плагины и каждый запаковывает в отдельный пакет. Для этого в каждой директории с плагином содержится xml файл с meta информацией о нём. Но наш рецепт будет только для одного плагина. Поэтому смело в начале рецепта пишем всю информацию о плагине. В последствие она будет использована для создания файла control в ipk пакете. Комментарии как обычно начинаются с символа "#".   
 {{{
 DESCRIPTION = "enigma2 iptv plugin for KartinaTV & RodnoeTV"
-MAINTAINER = "Alex Maystrenko <alexeytech@gmail.com>"
+MAINTAINER = "Alex Maystrenko <myemail@gmail.com>"
 HOMEPAGE = "http://code.google.com/p/kartinatv-dm/"
 LICENSE = "GNU GPLv2"
 SECTION = "extra"
