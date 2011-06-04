@@ -297,24 +297,23 @@ class KartinaPlayer(Screen, InfoBarBase, InfoBarMenu, InfoBarPlugins, InfoBarExt
 		
 		#FIXME: actionmap add help.
 		#TODO: Create own actionmap
-		#TODO: disable/enabling action map
+		#TODO: split and disable/enable action map
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "ChannelSelectEPGActions", "InfobarChannelSelection", "TvRadioActions"], 
 		{
-			"cancel": self.hide,
+			"cancel": self.hide, 
 			"green" : self.kartinaConfig,
-			"red" :self.archivePvr,
-			"yellow" :self.playpauseArchive,
-			#"blue" :self.doNothing,
+			"red" : self.archivePvr,
+			"yellow" : self.playpauseArchive,
 			"zapUp" : self.previousChannel,
-			"zapDown" : self.nextChannel,
+			"zapDown" : self.nextChannel, 
 			"ok" : self.toggleShow,
-			"switchChannelUp" : self.showList,
-			"switchChannelDown" : self.showList,
-			"openServiceList" : self.showList,
-			"historyNext" : self.historyNext,
+			"switchChannelUp" : self.showList,  
+			"switchChannelDown" : self.showList, 
+			"openServiceList" : self.showList,  
+			"historyNext" : self.historyNext, 
 			"historyBack" : self.historyBack,
-			"showEPGList" :self.showEpg,
-			"keyTV" : self.exit 
+			"showEPGList" : self.showEpg,
+			"keyTV" : self.exit
 		}, -1)
 		
 		self["NumberActions"] = NumberActionMap([ "NumberActions"],
@@ -340,8 +339,17 @@ class KartinaPlayer(Screen, InfoBarBase, InfoBarMenu, InfoBarPlugins, InfoBarExt
 		self.epgTimer.callback.append(self.epgEvent)
 		self.epgProgressTimer.callback.append(self.epgUpdateProgress)
 		
+		#Standby notifier!!
+		config.misc.standbyCounter.addNotifier(self.standbyCountChanged, initial_call = False)
+		
 		self.onClose.append(self.__onClose)
 		self.onShown.append(self.start)
+
+
+	def standbyCountChanged(self, configElement):
+		from Screens.Standby import inStandby
+		if bouquet and ktv.SID:
+			inStandby.onClose.append(self.play) #in standby stream stops, so we need reconnect..
 	
 	def __onClose(self):
 		KartinaPlayer.instance = None
@@ -1326,6 +1334,7 @@ class KartinaEpgList(Screen):
 			self.single = False
 			self["key_green"].setText(_("Fully"))
 			self.fillList()
+			self.fillEpgLabels()
 			return
 		bouquet.current = self.lastroot
 		self.close()
@@ -1430,12 +1439,12 @@ class KartinaVideoList(Screen):
 #----------Config Class----------
 class KartinaConfig(ConfigListScreen, Screen):
 	skin = """
-		<screen name="KartinaConfig" position="center,center" size="550,200" title="IPTV">
+		<screen name="KartinaConfig" position="center,center" size="550,250" title="IPTV">
 			<widget name="config" position="20,10" size="520,150" scrollbarMode="showOnDemand" />
-			<ePixmap name="red"	position="0,150" zPosition="4" size="140,40" pixmap="skin_default/buttons/red.png" transparent="1" alphatest="on" />
-			<ePixmap name="green" position="140,150" zPosition="4" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on" />
-			<widget name="key_red" position="0,150" zPosition="5" size="140,40" valign="center" halign="center" font="Regular;21" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
-			<widget name="key_green" position="140,150" zPosition="5" size="140,40" valign="center" halign="center" font="Regular;21" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
+			<ePixmap name="red"	position="0,200" zPosition="4" size="140,40" pixmap="skin_default/buttons/red.png" transparent="1" alphatest="on" />
+			<ePixmap name="green" position="140,200" zPosition="4" size="140,40" pixmap="skin_default/buttons/green.png" transparent="1" alphatest="on" />
+			<widget name="key_red" position="0,200" zPosition="5" size="140,40" valign="center" halign="center" font="Regular;21" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
+			<widget name="key_green" position="140,200" zPosition="5" size="140,40" valign="center" halign="center" font="Regular;21" transparent="1" foregroundColor="white" shadowColor="black" shadowOffset="-1,-1" />
 		</screen>"""
 	
 	def __init__(self, session):
