@@ -13,8 +13,15 @@ $(PLUGIN)-py.pot: $(srcdir)/../src/*.py
 $(PLUGIN)-xml.pot: $(top_srcdir)/xml2po.py $(srcdir)/../src/*.xml
 	$(PYTHON) $^ > $@
 
+<<<<<<< .working
 $(PLUGIN).pot: $(PLUGIN)-py.pot $(PLUGIN)-xml.pot
 	cat $^ | $(MSGUNIQ) --no-location -o $@ -
+=======
+$(PLUGIN).pot: $(PLUGIN)-py.pot #$(PLUGIN)-xml.pot
+	for x in $<; do \
+	    $(MSGUNIQ) $$x --no-location -o $@; \
+	done 
+>>>>>>> .merge-right.r95
 
 %.po: $(PLUGIN).pot
 	if [ -f $@ ]; then \
