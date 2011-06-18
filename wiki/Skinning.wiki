@@ -3,7 +3,22 @@
 
 = Инструкция по созданию своих скинов для плагина =
 
-в разработке Внимание возможны изменения!!!
+=== Редактирование с помощью [http://code.google.com/p/e2skinner2/ e2skinner] ===
+К сожалению e2skinner рассчитан на редактирование полного скина дримбокса, а не скина отдельного плагина. Поэтому прийдёться подготовить наш скин для e2skinner.
+
+ # Сначала скачиваем [code.google.com/p/e2skinner2/downloads/list e2skinner], распаковываем, так же берём skin-post и skin-pre [http://code.google.com/p/kartinatv-dm/downloads/list отсюда]. 
+ # Скачиваем с дримбокса папку /usr/share/enigma2/KartinaTV_skin и кладём в папку skins в каталоге e2skinner2.0.6.3b (версия на момент написания wiki). В эту же папку кладём skin-post.exe и skin-pre.exe
+ # открываем _kartina_skin.xml_ с помощью _skin-pre.exe_ (для этого можно просто перетащить файл _kartina_skin.xml_ на _skin-pre.exe_). В каталоге создался файл _skin.sml_
+ # открываем программу e2skinner и начинаем редактировать скин. В этой программе удобно менять расположение элементов. Когда достигли нужного вида не забываем нажать кнопку сохранить.
+ # теперь надо запустить утилиту _skin-post.exe_. Точно так же нужно открыть _skin.xml_ в _skin-post.exe_. Создастся обновлённый файл _kartina_skin.xml_, который можно обратно кидать в дримбокс!
+ # На всякий случай перед перезаписью _skin.xml_ и _kartina_skin.xml_
+утилиты _skin-pre.exe_ и _skin-post.exe_
+создают бэкапы _skin.xml.backup_ и _kartina_skin.xml.backup_   
+
+
+
+
+_Названия элементов в разработке. Внимание возможны изменения!!!_
 
 = Элементы инфобара =
 ||Name||Описание||Тип элемента||
@@ -41,9 +56,4 @@
 ||epgTime||Время начала и окончания выбранной передачи в формате HH:MM - HH:MM||Label()||
 ||sepgName||Для single режима. Краткое описание||Label()||
 ||sepgDiscription||Для single режима. подробное онисание ||Label()||
-||sepgTime||Время начала и окончания выбранной передачи в формате HH:MM ||Label()|| 
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+||sepgTime||Время начала и окончания выбранной передачи в формате HH:MM ||Label()||
