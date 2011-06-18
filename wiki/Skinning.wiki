@@ -6,7 +6,7 @@
 === Редактирование с помощью [http://code.google.com/p/e2skinner2/ e2skinner] ===
 К сожалению e2skinner рассчитан на редактирование полного скина дримбокса, а не скина отдельного плагина. Поэтому прийдёться подготовить наш скин для e2skinner.
 
- # Сначала скачиваем [code.google.com/p/e2skinner2/downloads/list e2skinner], распаковываем, так же берём <font color=blue>skin-post</font> и <font color=blue>skin-pre</font> [http://code.google.com/p/kartinatv-dm/downloads/list отсюда]. 
+ # Сначала скачиваем [http://code.google.com/p/e2skinner2/downloads/list e2skinner], распаковываем, так же берём <font color=blue>skin-post</font> и <font color=blue>skin-pre</font> [http://code.google.com/p/kartinatv-dm/downloads/list отсюда]. 
  # Скачиваем с дримбокса папку /usr/share/enigma2/KartinaTV_skin и кладём в папку skins в каталоге e2skinner2.0.6.3b (версия на момент написания wiki). В эту же папку кладём <font color=blue>skin-post.exe</font> и <font color=blue>skin-pre.exe</font>
  # открываем <font color=blue>kartina_skin.xml</font> с помощью <font color=blue>skin-pre.exe</font> (для этого можно просто перетащить файл <font color=blue>kartina_skin.xml</font> на <font color=blue>skin-pre.exe</font>). В каталоге создался файл <font color=blue>skin.xml</font>
  # открываем программу e2skinner и начинаем редактировать скин. В этой программе удобно менять расположение элементов. Когда достигли нужного вида не забываем нажать кнопку сохранить.
