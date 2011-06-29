@@ -6,11 +6,13 @@ SECTION = "extra"
 
 PN="enigma2-plugin-extensions-kartinatv"
 
-PV="1.6.2"
-PR = "r0"
+PV="1.6.5"
+PR = "r1"
 
 SRC_URI = "file://${FILE_DIRNAME}/build"
 S = "${WORKDIR}/build"
+
+PACKAGES = "${PN}-dbg ${PN} ${PN}-doc ${PN}-dev ${PN}-locale"
 
 EXTRA_OECONF = " \
         BUILD_SYS=${BUILD_SYS} \
