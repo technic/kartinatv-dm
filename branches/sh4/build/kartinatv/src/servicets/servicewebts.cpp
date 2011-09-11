@@ -711,6 +711,7 @@ int eServiceTS::getNumberOfTracks() {
 }
 
 RESULT eServiceTS::selectTrack(unsigned int i) {
+	eDebug("selectTrack disabled!");
 	return -1;
 	if (m_audioInfo) {
 		m_apid = m_audioInfo->audioStreams[i].pid;
@@ -1045,6 +1046,7 @@ void eStreamThread::thread() {
 		}
 		
 		rc = 0;
+		eDebug("rev>114");
 		if (PID_SET == 1) {	
 			eDebug("b[get]=", buf[get])
 			if (avail > 0){ 
