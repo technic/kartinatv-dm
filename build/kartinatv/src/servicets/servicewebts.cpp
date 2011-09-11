@@ -4,7 +4,7 @@
  Modified by Dr. Best
  Modified by technic
  	-KartinaTV & RodnoeTV compatibility
- 	-Ring buffer now!!
+ 	-Ring buffer now!!!
 
  This is free software; you can redistribute it and/or modify it under
  the terms of the GNU General Public License as published by the Free
@@ -32,6 +32,11 @@
 #include <lib/base/nconfig.h> // access to python config
 
 #include <lib/dvb/pmt.h>
+
+#include <linux/dvb/audio.h>
+#include <linux/dvb/video.h>
+#include <linux/dvb/dmx.h>
+#include <sys/ioctl.h>
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
@@ -278,8 +283,9 @@ RESULT eServiceTS::start()
 {
 	ePtr<eDVBResourceManager> rmgr;
 	eDVBResourceManager::getInstance(rmgr);
-	eDVBChannel dvbChannel(rmgr, 0);
-	if (dvbChannel.getDemux(m_decodedemux, iDVBChannel::capDecode) != 0) {
+	eUsePtr<iDVBPVRChannel> dvbChannel;
+	rmgr->allocatePVRChannel(dvbChannel);
+	if (dvbChannel->getDemux(m_decodedemux, 1) != 0) {
 		eDebug("Cannot allocate decode-demux");
 		return -1;
 	}
@@ -291,31 +297,35 @@ RESULT eServiceTS::start()
 	{
 		char dvrDev[128];
 		int dvrIndex = rmgr->m_adapter.begin()->getNumDemux() - 1;
+		//dvrIndex = 0;
 		sprintf(dvrDev, "/dev/dvb/adapter0/dvr%d", dvrIndex);
 		m_destfd = open(dvrDev, O_WRONLY);
 		eDebug("open dvr device %99s", dvrDev);
 	}
+	ioctl(m_destfd, 0);
+	m_decodedemux->flush();
 	//m_decoder->setVideoPID(m_vpid, eDVBVideo::MPEG2);
 	//m_decoder->setAudioPID(m_apid, eDVBAudio::aMPEG);
-	m_decoder->connectVideoEvent(slot(*this, &eServiceTS::video_event), m_video_event_connection);
+	//m_decoder->connectVideoEvent(slot(*this, &eServiceTS::video_event), m_video_event_connection);
 	m_streamthread = new eStreamThread();
 	CONNECT(m_streamthread->m_event, eServiceTS::recv_event);
+
 	//m_decoder->freeze(0);
 	//m_decoder->preroll();
 	if (unpause() != 0)
 		return -1;
-	//m_event(this, evStart);
+	//m_event(this, evStart); 
 	return 0;
 }
 
 RESULT eServiceTS::stop()
 {
-	m_streamthread->stop();
 	if (m_destfd >= 0)
 	{
 		::close(m_destfd);
 		m_destfd = -1;
 	}
+	m_streamthread->stop();
 	m_decodedemux->flush();
 	m_audioInfo = 0;
 	APID = 0;
@@ -323,7 +333,166 @@ RESULT eServiceTS::stop()
 	PID_SET = 0;
 	H264 = 0;
 	printf("TS: %s stop\n", m_filename.c_str());
+	close(m_afd);
+	close(m_vfd);
+	close(m_afd_demux);
+	close(m_vfd_demux);
 	return 0;
+}
+
+#define VIDEO_STREAMTYPE_MPEG2 0
+#define VIDEO_STREAMTYPE_MPEG4_H264 1
+#define VIDEO_STREAMTYPE_VC1 3
+#define VIDEO_STREAMTYPE_MPEG4_Part2 4
+#define VIDEO_STREAMTYPE_VC1_SM 5
+#define VIDEO_STREAMTYPE_MPEG1 6
+
+int eServiceTS::my_setState()
+{
+	int streamtype = VIDEO_STREAMTYPE_MPEG2;
+
+	dmx_pes_filter_params pes;
+	
+	
+    m_vfd = ::open("/dev/dvb/adapter0/video0", O_RDWR);
+    if (m_vfd < 0) {
+    	eDebug("video open fail! %m");
+    }
+	
+	m_vfd_demux = ::open("/dev/dvb/adapter0/demux1", O_RDWR);
+
+	if (m_vfd_demux < 0) {
+		eDebug("demux open fail!! %m");
+	}
+	
+	m_afd_demux = ::open("/dev/dvb/adapter0/demux1", O_RDWR);
+
+	if (m_afd_demux < 0) {
+		eDebug("ademux open fail!! %m");
+	}
+	
+	m_afd = ::open("/dev/dvb/adapter0/audio0", O_RDWR);
+    if (m_afd < 0) {
+    	eDebug("audio open fail! %m");
+    }
+	
+	#if HAVE_DVB_API_VERSION > 2
+	eDebugNoNewLine("DEMUX_STOP - video - ");
+	if (::ioctl(m_vfd_demux, DMX_STOP) < 0)
+		eDebug("failed (%m)");
+	else
+		eDebug("ok");
+	#endif
+	eDebugNoNewLine("VIDEO_STOP - ");
+	if (::ioctl(m_vfd, VIDEO_STOP, 1) < 0)
+		eDebug("failed (%m)");
+	else
+		eDebug("ok");
+	
+	eDebugNoNewLine("AUDIO_STOP - ");
+	if (::ioctl(m_afd, AUDIO_STOP) < 0)
+		eDebug("failed (%m)");
+	else
+		eDebug("ok");
+#if HAVE_DVB_API_VERSION > 2
+	eDebugNoNewLine("DEMUX_STOP - audio - ");
+	if (::ioctl(m_afd_demux, DMX_STOP) < 0)
+		eDebug("failed (%m)");
+	else
+		eDebug("ok");
+#endif
+
+	if (H264) {
+		streamtype = VIDEO_STREAMTYPE_MPEG4_H264;
+	}
+	
+
+	eDebugNoNewLine("X_VIDEO_SET_STREAMTYPE %d - ", streamtype);
+	if (::ioctl(m_vfd, VIDEO_SET_STREAMTYPE, streamtype) < 0)
+		eDebug("failed (%m)");
+	else
+		eDebug("ok");
+
+	pes.pid      = VPID;
+	pes.input    = DMX_IN_DVR;
+	pes.output   = DMX_OUT_DECODER;
+	pes.pes_type = DMX_PES_VIDEO0; /* FIXME */
+#if defined(__sh__) // increases zapping speed
+	pes.flags    = DMX_IMMEDIATE_START;
+#else
+	pes.flags    = 0;
+#endif
+	eDebugNoNewLine("X_DMX_SET_PES_FILTER(0x%02x) - video - ", VPID);
+	if (::ioctl(m_vfd_demux, DMX_SET_PES_FILTER, &pes) < 0)
+	{
+		eDebug("failed (%m)");
+		return -errno;
+	}
+	eDebug("ok");
+
+	eDebugNoNewLine("VIDEO_PLAY - ");
+	if (::ioctl(m_vfd, VIDEO_PLAY) < 0)
+		eDebug("failed (%m)");
+	else
+		eDebug("ok");
+	
+	pes.pid      = APID;
+	pes.input    = DMX_IN_DVR;
+	pes.output   = DMX_OUT_DECODER;
+	pes.pes_type = DMX_PES_AUDIO0; /* FIXME */
+	pes.flags    = 0;
+	eDebugNoNewLine("X_DMX_SET_PES_FILTER(0x%02x) - audio - ", APID);
+	if (::ioctl(m_afd_demux, DMX_SET_PES_FILTER, &pes) < 0)
+	{
+		eDebug("failed (%m)");
+		return -errno;
+	}
+	eDebug("ok");
+
+	eDebugNoNewLine("DEMUX_START - audio - ");
+	if (::ioctl(m_afd_demux, DMX_START) < 0)
+	{
+		eDebug("failed (%m)");
+		return -errno;
+	}
+	eDebug("ok");
+	
+	int bypass = 1;
+	if (H264)
+		bypass = 8;
+	eDebugNoNewLine("AUDIO_SET_BYPASS(%d) - ", bypass);
+	if (::ioctl(m_afd, AUDIO_SET_BYPASS_MODE, bypass) < 0)
+		eDebug("failed (%m)");
+	else
+		eDebug("ok");
+
+	eDebugNoNewLine("AUDIO_PLAY - ");
+	if (::ioctl(m_afd, AUDIO_PLAY) < 0)
+	{
+		eDebug("failed (%m)");
+		return -errno;
+	}
+	eDebug("ok");
+	
+	eDebugNoNewLine("AUDIO_cont - ");
+	if (::ioctl(m_afd, AUDIO_CONTINUE) < 0)
+	{
+		eDebug("failed (%m)");
+		return -errno;
+	}
+	eDebug("ok");
+	
+	eDebugNoNewLine("VIDEO_cont - ");
+	if (::ioctl(m_vfd, VIDEO_CONTINUE) < 0)
+	{
+		eDebug("failed (%m)");
+		return -errno;
+	}
+	eDebug("ok");
+	
+	eDebug("AAAA");
+	return 0;
+
 }
 
 void eServiceTS::recv_event(int evt)
@@ -349,10 +518,10 @@ void eServiceTS::recv_event(int evt)
 			PID_SET = 1;
 			m_decodedemux->flush();
 			if (VPID != 0){
-				if (H264)
-					m_decoder->setVideoPID(VPID, eDVBVideo::MPEG4_H264);
-				else
-					m_decoder->setVideoPID(VPID, eDVBVideo::MPEG2);
+				//if (H264)
+				//	m_decoder->setVideoPID(VPID, eDVBVideo::MPEG4_H264);
+				//else
+				//	m_decoder->setVideoPID(VPID, eDVBVideo::MPEG2);
 			} else {
 				std::string radio_pic;
 				if (!ePythonConfigQuery::getConfigValue("config.misc.radiopic", radio_pic))
@@ -361,10 +530,11 @@ void eServiceTS::recv_event(int evt)
 			//m_decoder->setAudioPID(APID, eDVBAudio::aMPEG);
 			if (m_audioInfo) {
 				eDebug("[ServiceTS] %d audiostreams found", m_audioInfo->audioStreams.size());
-				selectTrack(0);
+				//selectTrack(0);
 			}
 			m_event(this, evStart);
-			m_decoder->play();
+			my_setState();
+			//m_decoder->play();
 			
 		}
 		break;
@@ -561,7 +731,7 @@ RESULT eServiceTS::selectTrack(unsigned int i) {
 		m_apid = m_audioInfo->audioStreams[i].pid;
 		eDebug("[ServiceTS] audio track %d PID 0x%02x type %d\n", i, m_apid, m_audioInfo->audioStreams[i].type);
 		m_decoder->setAudioPID(m_apid, m_audioInfo->audioStreams[i].type);
-		//m_decoder->set();
+		m_decoder->set();
 		m_event(this, evUpdatedInfo); //FIXME: hack for update audioInfo 
 		return 0;
 	} else {
@@ -792,8 +962,8 @@ bool eStreamThread::scanAudioInfo(unsigned char buf[], int len)
 void eStreamThread::thread() {
 	const int bufsize = 1 << 22; //4 MB TODO: define
 	//const int bufmask = bufsize -1;
-	const int blocksize = 512*188;
-	int rc, avail, put, get, size;
+	const int blocksize = 188*348;
+	int rc, avail, put, get, size, mytest, x;
 	time_t next_scantime = 0;
 	fd_set wset;
 	bool sosSend = false;
@@ -802,6 +972,8 @@ void eStreamThread::thread() {
 	struct RingBuffer ring; 
 	
 	m_running = true;
+	mytest = 0;
+	x =0;
 	
 	unsigned char* buf = (unsigned char*) malloc(bufsize);
 	if (buf == NULL) {
@@ -823,7 +995,7 @@ void eStreamThread::thread() {
 	
 	hasStarted();
 	//wait for prebuffering
-	usleep(1000*m_buffer_time);
+	//usleep(1000*m_buffer_time);
 	
 	while (!m_stop) {
 		pthread_testcancel();
@@ -845,14 +1017,14 @@ void eStreamThread::thread() {
 			if(stop) { 
 				break; //putThread ended, but we should write all data from buffer
 			}
-			if(avail <= predone) {
+			if(avail <= predone && ((size-get) > predone) ) {
 				//eDebug("eStreamThread wating for signal. Avail = %d", avail);
 				pthread_cond_wait(&m_full, &m_mutex);
 			}
 			if(m_stop){
 				eDebug("eStreamThread stop immediately");
 			}	
-		} while(avail <= predone && !m_stop && !stop);
+		} while(avail <= predone && !m_stop && !stop && ((size-get) > predone) );
 		pthread_mutex_unlock(&m_mutex);
 		//event occured
 		if (m_stop) { //global stop quit immediately
@@ -865,8 +1037,8 @@ void eStreamThread::thread() {
 		
 		if (avail > predone && predone != 0)
 		{
-			//predone = 0;
-			eDebug("eStreamThread prebuffering DONE %d", time(0));
+			//predone = blocksize;
+			//eDebug("eStreamThread prebuffering DONE %d", time(0));
 		}
 			
 		FD_ZERO(&wset);
@@ -886,21 +1058,34 @@ void eStreamThread::thread() {
 			eDebug("eStreamThreadGet timeout!");
 			continue;
 		}
-			
-		rc = ::write(m_destfd, buf+get, MIN(avail, blocksize));
-		//eDebug("eStreamThreadGet write=%d", rc);
+		
+		rc = 0;
+		if (PID_SET == 1) {	
+		
+		if (avail > 0){ 
+			if (avail >= predone) {	
+				rc = ::write(m_destfd, buf+get, predone);
+				eDebug("w=%d", rc);
+			} else {
+				rc = avail;
+				eDebug("drop %d", avail);
+			}
+		}
+
 		if (rc < 0) {
 			eDebug("eStreamThreadGet error in write (%d)", errno);
 			m_messagepump.send(evtWriteError);
 			break;
+		}
+		
 		}
 			
 		if (!sosSend) {
 			m_messagepump.send(evtSOS);
 			sosSend = true;
 		}
-		if (time(0) >= next_scantime && (get+rc) >= blocksize) {
-			if (scanAudioInfo(buf+get+rc-blocksize, blocksize)) {
+		if (time(0) >= next_scantime && (put) >= blocksize) {
+			if (scanAudioInfo(buf, blocksize)) {
 				m_messagepump.send(evtStreamInfo);
 				next_scantime = time(0) + 1;
 			}
@@ -911,6 +1096,7 @@ void eStreamThread::thread() {
 		pthread_cond_signal(&empty);
 		pthread_mutex_unlock(&m_mutex);
 		//mutex unlock
+		//usleep(1000*100);
 	}
 	
 	m_messagepump.send(evtEOS);
@@ -970,7 +1156,7 @@ void eStreamThreadPut::stop() {
 void eStreamThreadPut::thread()
 {
 	int free, size, get, put, rc;
-	int packsize = 10000;
+	int packsize = 96256;
 	fd_set rset;
 	struct timeval timeout;
 	bool stop = false;
@@ -993,7 +1179,7 @@ void eStreamThreadPut::thread()
 				free = size - put;
 				if(get == 0) free--;
 			} else {
-				free = get - put - 1 - 15000;
+				free = get - put - 1 - 150000;
 			}
 			//eDebug("eStreamThreadPut free = %d", free);
 			if(free <= 0) {
@@ -1005,6 +1191,8 @@ void eStreamThreadPut::thread()
 		//event occured
 		if(stop)
 			break;
+		
+		//eDebug("%d", free);
 		
 		//start reading
 		int maxfd = 0;
