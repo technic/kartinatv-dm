@@ -711,6 +711,7 @@ int eServiceTS::getNumberOfTracks() {
 }
 
 RESULT eServiceTS::selectTrack(unsigned int i) {
+	return -1;
 	if (m_audioInfo) {
 		m_apid = m_audioInfo->audioStreams[i].pid;
 		eDebug("[ServiceTS] audio track %d PID 0x%02x type %d\n", i, m_apid, m_audioInfo->audioStreams[i].type);
@@ -1053,7 +1054,7 @@ void eStreamThread::thread() {
 				} 
 			}
 		
-		}  else {
+		} else {
 			rc = avail;
 			eDebug("drop %d", avail);
 		}
@@ -1062,8 +1063,6 @@ void eStreamThread::thread() {
 			eDebug("eStreamThreadGet error in write (%d)", errno);
 			m_messagepump.send(evtWriteError);
 			break;
-		}
-		
 		}
 			
 		if (!sosSend) {
