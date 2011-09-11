@@ -500,7 +500,6 @@ void eServiceTS::recv_event(int evt)
 		m_streamthread->getAudioInfo(m_audioInfo);
 		if (PID_SET == 0 && APID != 0)
 		{
-			PID_SET = 1;
 			m_decodedemux->flush();
 			if (VPID != 0){
 				//if (H264)
@@ -520,7 +519,7 @@ void eServiceTS::recv_event(int evt)
 			m_event(this, evStart);
 			my_setState();
 			//m_decoder->play();
-			
+			PID_SET = 1;			
 		}
 		break;
 	}
