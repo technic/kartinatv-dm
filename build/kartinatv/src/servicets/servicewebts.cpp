@@ -1045,15 +1045,17 @@ void eStreamThread::thread() {
 		
 		rc = 0;
 		if (PID_SET == 1) {	
-		
-		if (avail > 0){ 
-			if (avail >= predone) {	
-				rc = ::write(m_destfd, buf+get, predone);
-				eDebug("w=%d", rc);
-			} else {
-				rc = avail;
-				eDebug("drop %d", avail);
+			eDebug("b[get]=", buf[get])
+			if (avail > 0){ 
+				if (avail >= predone) {	
+					rc = ::write(m_destfd, buf+get, predone);
+					eDebug("w=%d", rc);
+				} 
 			}
+		
+		}  else {
+			rc = avail;
+			eDebug("drop %d", avail);
 		}
 
 		if (rc < 0) {
