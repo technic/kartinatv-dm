@@ -1048,7 +1048,7 @@ void eStreamThread::thread() {
 		rc = 0;
 		eDebug("rev>114");
 		if (PID_SET == 1) {	
-			eDebug("b[get]=", buf[get])
+			eDebug("b[get]=%d", buf[get])
 			if (avail > 0){ 
 				if (avail >= predone) {	
 					rc = ::write(m_destfd, buf+get, predone);
