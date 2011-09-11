@@ -482,7 +482,7 @@ int eServiceTS::my_setState()
 
 void eServiceTS::recv_event(int evt)
 {
-	eDebug("eServiceTS::recv_event: %d", evt);
+	eDebug("eServiceTS 11X::recv_event: %d", evt);
 	switch (evt) {
 	case eStreamThread::evtEOS:
 		m_decodedemux->flush();
@@ -1046,7 +1046,6 @@ void eStreamThread::thread() {
 		}
 		
 		rc = 0;
-		eDebug("rev>114");
 		if (PID_SET == 1) {	
 			eDebug("b[get]=%d", buf[get]);
 			if (avail > 0){ 
