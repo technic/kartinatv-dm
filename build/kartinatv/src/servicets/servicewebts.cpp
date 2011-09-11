@@ -429,12 +429,6 @@ int eServiceTS::my_setState()
 		return -errno;
 	}
 	eDebug("ok");
-
-	eDebugNoNewLine("VIDEO_PLAY - ");
-	if (::ioctl(m_vfd, VIDEO_PLAY) < 0)
-		eDebug("failed (%m)");
-	else
-		eDebug("ok");
 	
 	pes.pid      = APID;
 	pes.input    = DMX_IN_DVR;
@@ -465,25 +459,16 @@ int eServiceTS::my_setState()
 		eDebug("failed (%m)");
 	else
 		eDebug("ok");
+	
+	eDebugNoNewLine("VIDEO_PLAY - ");
+	if (::ioctl(m_vfd, VIDEO_PLAY) < 0)
+		eDebug("failed (%m)");
+	else
+		eDebug("ok");
+
 
 	eDebugNoNewLine("AUDIO_PLAY - ");
 	if (::ioctl(m_afd, AUDIO_PLAY) < 0)
-	{
-		eDebug("failed (%m)");
-		return -errno;
-	}
-	eDebug("ok");
-	
-	eDebugNoNewLine("AUDIO_cont - ");
-	if (::ioctl(m_afd, AUDIO_CONTINUE) < 0)
-	{
-		eDebug("failed (%m)");
-		return -errno;
-	}
-	eDebug("ok");
-	
-	eDebugNoNewLine("VIDEO_cont - ");
-	if (::ioctl(m_vfd, VIDEO_CONTINUE) < 0)
 	{
 		eDebug("failed (%m)");
 		return -errno;
