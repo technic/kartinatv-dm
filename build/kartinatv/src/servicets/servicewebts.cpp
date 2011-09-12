@@ -1,3 +1,4 @@
+//rev119
 /*******************************************************************************
  VLC Player Plugin by A. Lätsch 2007
 
@@ -216,7 +217,7 @@ int eServiceTS::openHttpConnection(std::string url)
 	addr.sin_addr.s_addr = *((in_addr_t*)h->h_addr_list[0]);
 	addr.sin_port = htons(port);
 
-	eDebug("connecting to %s:%d, %d", host.c_str(), port, time(0));
+	eDebug("connecting to %s:%d", host.c_str(), port);
 
 	if (connect(fd, (sockaddr*)&addr, sizeof(addr)) == -1) {
 		std::string msg = "connect failed for: " + url;
@@ -297,7 +298,7 @@ RESULT eServiceTS::start()
 	{
 		char dvrDev[128];
 		int dvrIndex = rmgr->m_adapter.begin()->getNumDemux() - 1;
-		//dvrIndex = 0;
+		dvrIndex = 0;
 		sprintf(dvrDev, "/dev/dvb/adapter0/dvr%d", dvrIndex);
 		m_destfd = open(dvrDev, O_WRONLY);
 		eDebug("open dvr device %99s", dvrDev);
@@ -359,13 +360,13 @@ int eServiceTS::my_setState()
     	eDebug("video open fail! %m");
     }
 	
-	m_vfd_demux = ::open("/dev/dvb/adapter0/demux1", O_RDWR);
+	m_vfd_demux = ::open("/dev/dvb/adapter0/demux0", O_RDWR);
 
 	if (m_vfd_demux < 0) {
 		eDebug("demux open fail!! %m");
 	}
 	
-	m_afd_demux = ::open("/dev/dvb/adapter0/demux1", O_RDWR);
+	m_afd_demux = ::open("/dev/dvb/adapter0/demux0", O_RDWR);
 
 	if (m_afd_demux < 0) {
 		eDebug("ademux open fail!! %m");
@@ -482,7 +483,7 @@ int eServiceTS::my_setState()
 
 void eServiceTS::recv_event(int evt)
 {
-	eDebug("eServiceTS 11X::recv_event: %d", evt);
+	eDebug("eServiceTS::recv_event: %d", evt);
 	switch (evt) {
 	case eStreamThread::evtEOS:
 		m_decodedemux->flush();
@@ -946,20 +947,18 @@ bool eStreamThread::scanAudioInfo(unsigned char buf[], int len)
 }
 
 void eStreamThread::thread() {
-	const int bufsize = 1 << 22; //4 MB TODO: define
+	const int bufsize = 188*22310+1; //aligned to 188. approximately 4MB. 
 	//const int bufmask = bufsize -1;
 	const int blocksize = 188*348;
-	int rc, avail, put, get, size, mytest, x;
+	int rc, avail, put, get, size, x;
+	int predone = blocksize;
 	time_t next_scantime = 0;
 	fd_set wset;
 	bool sosSend = false;
 	bool stop = false;
-	int predone = blocksize;
 	struct RingBuffer ring; 
 	
 	m_running = true;
-	mytest = 0;
-	x =0;
 	
 	unsigned char* buf = (unsigned char*) malloc(bufsize);
 	if (buf == NULL) {
@@ -981,7 +980,8 @@ void eStreamThread::thread() {
 	
 	hasStarted();
 	//wait for prebuffering
-	//usleep(1000*m_buffer_time);
+	usleep(1000*m_buffer_time); //FIXME: ??
+	bool is_end;
 	
 	while (!m_stop) {
 		pthread_testcancel();
@@ -993,24 +993,24 @@ void eStreamThread::thread() {
 			get = ring.get;
 			size = ring.size;
 			stop = ring.stop;
-		
+			is_end = false;		
 			if (get > put) {
-				avail = size - get;
-				if(put == 0) avail--;
+				avail = size - get -1;
+				if ((size-get) < predone) is_end = true;
 			} else {
 				avail = put - get - 1;
 			}
 			if(stop) { 
 				break; //putThread ended, but we should write all data from buffer
 			}
-			if(avail <= predone && ((size-get) > predone) ) {
-				//eDebug("eStreamThread wating for signal. Avail = %d", avail);
+			if(avail <= predone && !is_end ) {
+				//eDebug("eStreamThread wating for signal. Avail = %d is_end = %d", avail, is_end);
 				pthread_cond_wait(&m_full, &m_mutex);
 			}
 			if(m_stop){
 				eDebug("eStreamThread stop immediately");
 			}	
-		} while(avail <= predone && !m_stop && !stop && ((size-get) > predone) );
+		} while(avail <= predone && !m_stop && !stop && !is_end );
 		pthread_mutex_unlock(&m_mutex);
 		//event occured
 		if (m_stop) { //global stop quit immediately
@@ -1046,19 +1046,37 @@ void eStreamThread::thread() {
 		}
 		
 		rc = 0;
-		if (PID_SET == 1) {	
-			eDebug("b[get]=%d", buf[get]);
-			if (avail > 0){ 
-				if (avail >= predone) {	
-					rc = ::write(m_destfd, buf+get, predone);
-					eDebug("w=%d", rc);
-				} 
+		if (avail == 0) eDebug("WARNING!! avail=0 is_end=%d", is_end);
+		int wstart = get+1;
+		int towrite;
+		//buffer contains:
+		//"(get+1 pointer) (x-1 drop bytes) (0x47 start byte) (188 tspacket bytes)*packet_count + (tail that not aligned to 188)"
+		//if (PID_SET == 1) {	
+			x = 0;
+			while ((buf[wstart+x] != 0x47) && (avail > x)){
+				x++;
+			}
+			if (x != 0) eDebug("drop %d", x);
+			//eDebug("b[get]=%d", buf[wstart+x]);
+			//dont write first X bad bytes, but add their count to rc.
+			avail -= x;
+			towrite = avail - avail % 188;
+			if (towrite > 0) {
+				rc = ::write(m_destfd, buf+wstart+x, towrite);
+				rc += x;
+				//eDebug("w=%d ok=%d get=%d", rc, rc % 188, get+rc);
+			//FIXME: if avail is too small in the end, drop them. 
+			//What we should do is use some tmpbuf for writing avail there..
+			//Or maybe driver could handle them??
+			} else {
+				rc = x + avail;
+				eDebug("WARNING! ignore %d", avail);
 			}
 		
-		} else {
-			rc = avail;
-			eDebug("drop %d", avail);
-		}
+		//} else {
+		//	rc = avail - avail % 188; //align all to 188!
+		//	eDebug("ignore %d", avail);
+		//}
 
 		if (rc < 0) {
 			eDebug("eStreamThreadGet error in write (%d)", errno);
@@ -1076,13 +1094,17 @@ void eStreamThread::thread() {
 				next_scantime = time(0) + 1;
 			}
 		}
+		get += rc;
+		if (get == bufsize -1) {
+			get = 0;
+			eDebug("get cycle");
+		}
 		//mutex lock
 		pthread_mutex_lock(&m_mutex);
-		ring.get = (ring.get + rc) & (ring.size-1);
+		ring.get = get;
 		pthread_cond_signal(&empty);
 		pthread_mutex_unlock(&m_mutex);
 		//mutex unlock
-		//usleep(1000*100);
 	}
 	
 	m_messagepump.send(evtEOS);
@@ -1142,11 +1164,11 @@ void eStreamThreadPut::stop() {
 void eStreamThreadPut::thread()
 {
 	int free, size, get, put, rc;
-	int packsize = 96256;
+	int packsize = 10000; //TODO: I think no sence is sizes more tham mtu.
 	fd_set rset;
 	struct timeval timeout;
 	bool stop = false;
-	int timeouts = 0;
+	int timeouts = 0; //TODO: timeouts are useless!
 
 	hasStarted();
 	eDebug("eStreamThreadPut started");
@@ -1165,7 +1187,7 @@ void eStreamThreadPut::thread()
 				free = size - put;
 				if(get == 0) free--;
 			} else {
-				free = get - put - 1 - 150000;
+				free = get - put - 1 - 150000; //FIXME: strange constant here..
 			}
 			//eDebug("eStreamThreadPut free = %d", free);
 			if(free <= 0) {
@@ -1218,9 +1240,15 @@ void eStreamThreadPut::thread()
 			eDebug("eStreamThreadPut EOF");
 			break;
 		} else {
+			put += rc;
+			//eDebug("put=%d", put);
+			if (put == size) {
+				put = 1;
+				eDebug("put cycle");
+			}
 			//mutex lock
 			pthread_mutex_lock(m_mutex);
-			m_ring->put = (put+rc) & (m_ring->size-1);
+			m_ring->put = put;
 			//eDebug("eStreamThreadPut send signal, put = %d", m_ring->put);
 			pthread_cond_signal(m_full);
 			pthread_mutex_unlock(m_mutex);
