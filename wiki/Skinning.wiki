@@ -16,9 +16,7 @@
  
  * теперь надо запустить утилиту <font color=blue> skin-post.exe </font>. Точно так же нужно открыть <font color=blue> skin.xml </font> в <font color=blue> skin-post.exe </font>. Создастся обновлённый файл <font color=blue> kartina_skin.xml </font>, который можно обратно кидать в дримбокс!
  
- * На всякий случай перед перезаписью <font color=blue> skin.xml </font> и <font color=blue> kartina_skin.xml </font>
-утилиты <font color=blue> skin-pre.exe </font> и <font color=blue> skin-post.exe </font>
-создают бэкапы <font color=blue> skin.xml.backup </font> и <font color=blue> kartina_skin.xml.backup </font>   
+ * На всякий случай перед перезаписью <font color=blue> skin.xml </font> и <font color=blue> kartina_skin.xml </font> утилиты <font color=blue> skin-pre.exe </font> и <font color=blue> skin-post.exe </font> создают бэкапы <font color=blue> skin.xml.backup </font> и <font color=blue> kartina_skin.xml.backup </font>   
 
 
 _Названия элементов в разработке. Внимание возможны изменения!!!_
