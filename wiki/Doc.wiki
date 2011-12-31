@@ -1,6 +1,6 @@
 #summary howto add new iptv service support
 
-<font color="red" size="3">*!under develop*</font>
+<font color="red" size="3">*! under develop*</font>
 
 = Концепция проекта =
 
@@ -98,6 +98,4 @@ getPeriodEpg(self, cid, tstart, tend)
 getGmtEpg(self, cid)
 
 getNextGmtEpg(self, cid)
-
-
 
