@@ -1,0 +1,74 @@
+Package: enigma2-plugin-extensions-iptvdream
+Version: 3.0.5-1
+Architecture: mips32el-nf
+Maintainer: Alex Maystrenko <alexeytech@gmail.com>, Alex Revetchi <alex.revetchi@gmail.com>
+Filename: ./enigma2-plugin-extensions-iptvdream_3.0.5-1_mips32el-nf.ipk
+Size: 481586
+MD5sum: 792776ce2a964d1ffef844747b3d7ae1
+SHA1: 3eca791594f2fd71c88e9be8b41aeb36e2d7537d
+SHA256: 44f34e022f367ba859d73a8863ae0a0e492289fff6ee7889f83623509d83d7f4
+Section: extra
+Priority: optional
+Description: enigma2 iptvdream plugin framework
+License: GNU GPLv2
+
+Package: enigma2-plugin-extensions-iptvdream-api1
+Version: 2.3.2-1
+Architecture: mips32el-nf
+Maintainer: Alex Maystrenko <alexeytech@gmail.com>
+Depends: enigma2-plugin-extensions-iptvdream (>= 2.3.3)
+Filename: ./enigma2-plugin-extensions-iptvdream-api1_2.3.2-1_mips32el-nf.ipk
+Size: 5764
+MD5sum: 84d816b4938e2069763f9e8e98c5ee5e
+SHA1: 8a47b0d867e542434b52b6cdfc4285b92b5d3850
+SHA256: 9f6da05c8bdeea61908f55b6d1f1fe17c316310205e466f6ba050cf8d9c4e786
+Section: extra
+Priority: optional
+Description: enigma2 iptvdream common api
+License: GNU GPLv2
+
+Package: enigma2-plugin-extensions-iptvdream-kartina
+Version: 2.3.6-1
+Architecture: mips32el-nf
+Maintainer: Alex Maystrenko <alexeytech@gmail.com>
+Depends: enigma2-plugin-extensions-iptvdream (>= 2.1.8)
+Filename: ./enigma2-plugin-extensions-iptvdream-kartina_2.3.6-1_mips32el-nf.ipk
+Size: 8520
+MD5sum: bfbd640f61f8ee6e2989d113413c8cc7
+SHA1: fbbe2cdcdd0bc4b7fcffbcf1fb7e6b11a86c873b
+SHA256: 93402a1f730e820983bd17cea571128c5852e1e2bf0313384a7e0b84b273e7fc
+Section: extra
+Priority: optional
+Description: enigma2 iptvdream kartina player
+License: GNU GPLv2
+
+Package: enigma2-plugin-extensions-iptvdream-mixtv
+Version: 2.3.2-1
+Architecture: mips32el-nf
+Maintainer: Alex Maystrenko <alexeytech@gmail.com>
+Depends: enigma2-plugin-extensions-iptvdream-api1
+Filename: ./enigma2-plugin-extensions-iptvdream-mixtv_2.3.2-1_mips32el-nf.ipk
+Size: 6772
+MD5sum: d6c8ab8d0e4d183882bc30e580ed47ef
+SHA1: 7bdc8523e42dbc2e469a0b1f355bae34b7e74f7c
+SHA256: 3f719fa42b50119523e1a06d9ec33a08eed3aa08c0ed2792a89f13ce45b71811
+Section: extra
+Priority: optional
+Description: enigma2 iptvdream mixtv plugin
+License: GNU GPLv2
+
+Package: enigma2-plugin-extensions-iptvdream-ozo
+Version: 2.3.2-1
+Architecture: mips32el-nf
+Maintainer: Alex Maystrenko <alexeytech@gmail.com>
+Depends: enigma2-plugin-extensions-iptvdream-api1
+Filename: ./enigma2-plugin-extensions-iptvdream-ozo_2.3.2-1_mips32el-nf.ipk
+Size: 5582
+MD5sum: ae052cc05584357ca4c01b54c466e49e
+SHA1: d05d75ceaa7497a368fa4e4de696291335824165
+SHA256: 4bf20b35823f0b12ac922924e98bbb572a1b4cd79e0b96e097c8e0265773b5e2
+Section: extra
+Priority: optional
+Description: enigma2 iptvdream ozo plugin
+License: GNU GPLv2
+
