@@ -1,12 +1,12 @@
 Package: enigma2-plugin-extensions-iptvdream
-Version: 3.2.2-1
+Version: 3.0.5-1
 Architecture: mips32el-nf
 Maintainer: Alex Maystrenko <alexeytech@gmail.com>, Alex Revetchi <alex.revetchi@gmail.com>
-Filename: ./enigma2-plugin-extensions-iptvdream_3.2.2-1_mips32el-nf.ipk
-Size: 510252
-MD5sum: ce04c777ecd28ad2acaa6b3e90653982
-SHA1: 55bc561adb6f19db67ca41c8838c57e8b6d18b61
-SHA256: a9f99153359d797b2ac133b00f6215c22954d9a4421594329b54a653916d4102
+Filename: ./enigma2-plugin-extensions-iptvdream_3.0.5-1_mips32el-nf.ipk
+Size: 481586
+MD5sum: 792776ce2a964d1ffef844747b3d7ae1
+SHA1: 3eca791594f2fd71c88e9be8b41aeb36e2d7537d
+SHA256: 44f34e022f367ba859d73a8863ae0a0e492289fff6ee7889f83623509d83d7f4
 Section: extra
 Priority: optional
 Description: enigma2 iptvdream plugin framework
@@ -16,30 +16,15 @@ Package: enigma2-plugin-extensions-iptvdream-api1
 Version: 2.3.2-1
 Architecture: mips32el-nf
 Maintainer: Alex Maystrenko <alexeytech@gmail.com>
-Depends: enigma2-plugin-extensions-iptvdream (>= 3.2.0)
+Depends: enigma2-plugin-extensions-iptvdream (>= 2.3.3)
 Filename: ./enigma2-plugin-extensions-iptvdream-api1_2.3.2-1_mips32el-nf.ipk
-Size: 5790
-MD5sum: ca004edb381d0a23b0295041184236cd
-SHA1: bffba7117d6389efaaec8e918137f1465d8fbdfd
-SHA256: 00f291a565a033101554552c0a92ca549e822638137c6734ccb82ad7d6a58590
+Size: 5764
+MD5sum: 84d816b4938e2069763f9e8e98c5ee5e
+SHA1: 8a47b0d867e542434b52b6cdfc4285b92b5d3850
+SHA256: 9f6da05c8bdeea61908f55b6d1f1fe17c316310205e466f6ba050cf8d9c4e786
 Section: extra
 Priority: optional
 Description: enigma2 iptvdream common api
-License: GNU GPLv2
-
-Package: enigma2-plugin-extensions-iptvdream-bigfilm
-Version: 0.0.3-1
-Architecture: mips32el-nf
-Maintainer: Alex Maystrenko <alexeytech@gmail.com>
-Depends: enigma2-plugin-extensions-iptvdream (>= 3.2.0)
-Filename: ./enigma2-plugin-extensions-iptvdream-bigfilm_0.0.3-1_mips32el-nf.ipk
-Size: 66944
-MD5sum: 2afdcd118988b8309ca559c0ee28675f
-SHA1: b033e85f8e3ce92800a2b601a04877fd48fbb129
-SHA256: 080849aa52d41a517b4d768480af3ef7dc86b4d33a7b5b7c590e93e2ee1a8e16
-Section: extra
-Priority: optional
-Description: enigma2 iptvdream bigfilmtv module
 License: GNU GPLv2
 
 Package: enigma2-plugin-extensions-iptvdream-kartina
@@ -48,10 +33,10 @@ Architecture: mips32el-nf
 Maintainer: Alex Maystrenko <alexeytech@gmail.com>
 Depends: enigma2-plugin-extensions-iptvdream (>= 2.1.8)
 Filename: ./enigma2-plugin-extensions-iptvdream-kartina_2.3.6-1_mips32el-nf.ipk
-Size: 7648
-MD5sum: c643fd6f1ba116a68b2a8be981a83fae
-SHA1: 5c8538eca69ab881a3591cc59f87a20b427c4d7a
-SHA256: f876af14b6981aa4d83872b0514a6d47e16a8cccb32f1626735d7efb961ffcd2
+Size: 8520
+MD5sum: bfbd640f61f8ee6e2989d113413c8cc7
+SHA1: fbbe2cdcdd0bc4b7fcffbcf1fb7e6b11a86c873b
+SHA256: 93402a1f730e820983bd17cea571128c5852e1e2bf0313384a7e0b84b273e7fc
 Section: extra
 Priority: optional
 Description: enigma2 iptvdream kartina player
@@ -63,10 +48,10 @@ Architecture: mips32el-nf
 Maintainer: Alex Maystrenko <alexeytech@gmail.com>
 Depends: enigma2-plugin-extensions-iptvdream-api1
 Filename: ./enigma2-plugin-extensions-iptvdream-mixtv_2.3.2-1_mips32el-nf.ipk
-Size: 6762
-MD5sum: 3d1077fa5fcf514b40581b2ae34e9064
-SHA1: da539e415123540da08c720518a8e8fb29ba9c60
-SHA256: 5ce9d13bc59df80e4d45b84a5e7fa631b1c612ce445eac3cae1745a3326c79a5
+Size: 6772
+MD5sum: d6c8ab8d0e4d183882bc30e580ed47ef
+SHA1: 7bdc8523e42dbc2e469a0b1f355bae34b7e74f7c
+SHA256: 3f719fa42b50119523e1a06d9ec33a08eed3aa08c0ed2792a89f13ce45b71811
 Section: extra
 Priority: optional
 Description: enigma2 iptvdream mixtv plugin
@@ -78,10 +63,10 @@ Architecture: mips32el-nf
 Maintainer: Alex Maystrenko <alexeytech@gmail.com>
 Depends: enigma2-plugin-extensions-iptvdream-api1
 Filename: ./enigma2-plugin-extensions-iptvdream-ozo_2.3.2-1_mips32el-nf.ipk
-Size: 5580
-MD5sum: ff3cf752ca7fb43de1441316c6cbc3f6
-SHA1: 454e69d568df80c0e96d4793876a69704bd7a1ec
-SHA256: 3022b37ffcb1ea41eace4cbb0c27bc2d254a74186d924984117792a7d56fd10a
+Size: 5582
+MD5sum: ae052cc05584357ca4c01b54c466e49e
+SHA1: d05d75ceaa7497a368fa4e4de696291335824165
+SHA256: 4bf20b35823f0b12ac922924e98bbb572a1b4cd79e0b96e097c8e0265773b5e2
 Section: extra
 Priority: optional
 Description: enigma2 iptvdream ozo plugin
